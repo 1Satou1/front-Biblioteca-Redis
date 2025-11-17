@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../services/supabaseClient";
+import { sync } from "../../services/sincronizarMongo.js";
 
 export default function Books() {
   const navigate = useNavigate();
@@ -17,14 +18,13 @@ export default function Books() {
   async function fetchBooks() {
     setLoading(true);
     try {
-      // TODO: Reemplazar por llamada real a tu API / servicio (ej: fetch('/api/books', { headers: getAuthHeaders() }))
-      // Ejemplo placeholder:
-      // const resp = await fetch('/api/books', { headers: { Authorization: `Bearer ${token}` }});
-      // const data = await resp.json();
-      // setBooks(data);
-      setBooks([
-        { id: "1", title: "Ejemplo: El principito", author: "A. Saint-Exupéry", year: 1943 },
-      ]);
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBooks(data || []);
     } catch (err) {
       console.error('fetchBooks error:', err);
     } finally {
@@ -36,14 +36,19 @@ export default function Books() {
     e.preventDefault();
     setLoading(true);
     try {
-      // TODO: Implementar creación en backend:
-      //  - POST /api/books con body form
-      //  - validar respuesta y actualizar state (setBooks)
-      // Ejemplo:
-      // const resp = await fetch('/api/books', { method: 'POST', headers, body: JSON.stringify(form) })
-      // const created = await resp.json();
-      // setBooks(prev => [created, ...prev]);
-      setBooks(prev => [{ id: Date.now().toString(), ...form }, ...prev]);
+      
+
+        const {data, error } = await supabase
+        .from('materialbibliografico')
+        .select('*')
+
+        const roles = data;
+        console.log(roles);
+
+        await sync(data);
+
+      if (error) throw error;
+      setBooks(prev => [...data, ...prev]);
       setForm({ id: "", title: "", author: "", year: "" });
     } catch (err) {
       console.error('handleCreate error:', err);
@@ -62,10 +67,14 @@ export default function Books() {
     e.preventDefault();
     setLoading(true);
     try {
-      // TODO: Implementar update en backend:
-      //  - PUT /api/books/:id con body form
-      //  - actualizar state: setBooks(prev => prev.map(b => b.id === form.id ? updated : b))
-      setBooks(prev => prev.map(b => b.id === form.id ? { ...form } : b));
+      const { data, error } = await supabase
+        .from('books')
+        .update({ title: form.title, author: form.author, year: parseInt(form.year) })
+        .eq('id', form.id)
+        .select();
+
+      if (error) throw error;
+      setBooks(prev => prev.map(b => b.id === form.id ? data[0] : b));
       setEditing(false);
       setForm({ id: "", title: "", author: "", year: "" });
     } catch (err) {
@@ -78,9 +87,12 @@ export default function Books() {
   async function handleDelete(id) {
     setLoading(true);
     try {
-      // TODO: Implementar delete en backend:
-      //  - DELETE /api/books/:id
-      //  - actualizar state: setBooks(prev => prev.filter(b => b.id !== id))
+      const { error } = await supabase
+        .from('books')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
       setBooks(prev => prev.filter(b => b.id !== id));
     } catch (err) {
       console.error('handleDelete error:', err);
