@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../services/supabaseClient";
-import { sync } from "../../services/sincronizarMongo.js";
+import { syncData } from "../../services/sincronizarMongo.js";
+import { deleteData } from "../../services/eliminarMongo.js";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export default function Books() {
   const navigate = useNavigate();
@@ -36,16 +38,7 @@ export default function Books() {
     e.preventDefault();
     setLoading(true);
     try {
-      
 
-        const {data, error } = await supabase
-        .from('materialbibliografico')
-        .select('*')
-
-        const roles = data;
-        console.log(roles);
-
-        await sync(data);
 
       if (error) throw error;
       setBooks(prev => [...data, ...prev]);
@@ -58,6 +51,7 @@ export default function Books() {
   }
 
   function startEdit(book) {
+    
     setEditing(true);
     setForm(book);
     // TODO: scroll to form / focus
@@ -86,6 +80,7 @@ export default function Books() {
 
   async function handleDelete(id) {
     setLoading(true);
+
     try {
       const { error } = await supabase
         .from('books')
@@ -101,6 +96,26 @@ export default function Books() {
     }
   }
 
+  async function handleSync() {
+
+    try {
+      const datos = await supabase
+      .from('materialbibliografico')
+      .select('*');
+
+      console.log('Datos to sync:', datos);
+
+      const result = await syncData(datos.data);
+
+      console.log(datos.data)
+      console.log('Sync result:', result);
+    } catch (err) {
+      console.error('handleSync error:', err);
+    } 
+    
+  }
+
+  
   return (
     <div className="min-h-screen app-bg flex items-start justify-center py-12 px-4">
       <div className="w-full max-w-4xl bg-white/95 rounded-2xl p-8 shadow-2xl border-l-4 border-emerald-500">
@@ -141,8 +156,12 @@ export default function Books() {
                 <button type="button" onClick={() => { setEditing(false); setForm({ id: "", title: "", author: "", year: "" }); }} className="px-3 py-2 rounded-md bg-gray-200 text-gray-700">
                   Cancelar
                 </button>
+                
               )}
             </div>
+            <div className="flex items-center gap-2">
+                      <button onClick={() => handleSync()} className="text-sm px-3 py-1 bg-amber-300 text-emerald-800 rounded-md">Editar</button>
+                    </div>
           </form>
 
           {/* Lista de libros */}

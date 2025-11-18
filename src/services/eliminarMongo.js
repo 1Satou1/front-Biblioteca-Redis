@@ -1,5 +1,5 @@
-export async function syncData(datos){
-  const response = await fetch('http://localhost:3000/biblioteca/sync', {
+export async function deleteData(datos){
+  const response = await fetch('http://localhost:3000/biblioteca/deleteMongo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
