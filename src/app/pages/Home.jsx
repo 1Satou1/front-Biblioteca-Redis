@@ -36,7 +36,7 @@ export default function Home() {
                 Ver catálogo
               </button>
 
-              <a href="/books">Libritos</a>
+              <a href="/books">Librito</a>
             </div>
           </div>
 
