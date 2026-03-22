@@ -1,17 +1,14 @@
-export async function Delete(datos){
-  const response = await fetch('http://localhost:3000/biblioteca/Delete', {
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+export async function Delete(datos) {
+  const response = await fetch(`${API_URL}/biblioteca/Delete`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(datos),
-    datos: 'include'
-  });
-
+  })
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    const error = await response.text()
+    throw new Error(error)
   }
-
-  return await response.json();
+  return await response.json()
 }

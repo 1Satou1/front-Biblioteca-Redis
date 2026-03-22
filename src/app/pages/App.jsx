@@ -6,15 +6,21 @@ import Login from './Login.jsx';
 import Books from './Books.jsx';
 import Register from './Register.jsx';
 import Home from './Home.jsx';
+import Serch from './Serch.jsx';
 import NotFound from './NotFound.jsx';
+import Users from './Users.jsx';
 import ProtectedRoute from '../components/ProtectedRoute.jsx'; // nuevo wrapper
+import TipoGenero from './TipoGenero.jsx';
 
 // Lista declarativa de rutas: fácil de ampliar
 const routes = [
   { path: '/login', element: <Login />, public: true },
   { path: '/register', element: <Register />, public: true },
-  { path: '/books', element: <Books />, public: true }, // si quieres protegerla, public: false
+  { path: '/books', element: <Books />, public: false }, // si quieres protegerla, public: false
+  { path: '/search', element: <Serch />, public: false },
   { path: '/home', element: <Home />, public: false },
+  { path: '/tipoGenero', element: <TipoGenero />, public: false },
+  { path: '/users', element: <Users />, public: false },
   // Añade aquí nuevas rutas: { path: '/profile', element: <Profile />, public: false }
 ];
 
@@ -55,7 +61,7 @@ function App() {
           />
         );
       })}
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Login />} />
     </Routes>
   );
 }
